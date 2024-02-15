@@ -28,7 +28,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    print('start');
     fun();
   }
 
@@ -37,8 +36,6 @@ class _HomeState extends State<Home> {
       await Future.delayed(Duration(milliseconds: speed)).then((value) {
         setState(() {
           walk();
-          print("row = $row");
-          print("col = $col");
         });
       },);
     if(!gameOn)
@@ -70,7 +67,6 @@ class _HomeState extends State<Home> {
     List UpToDown = [for (int i = 0; i < col; i++) head == col * row - col + i];
     List DownToUp = [for (int i = 0; i < col; i++) head == i];
 
-    print('Head = $head');
     if (LeftToRight.contains(true) && move == 1)
       head -= col - 1;
     else if (RightToLeft.contains(true) && move == -1)
@@ -156,19 +152,19 @@ class _HomeState extends State<Home> {
                   switch (direction) {
                     case SwipeDirection.up:
                       move = 0 - col;
-                      print('Swiped up');
+                      // print('Swiped up');
                       break;
                     case SwipeDirection.down:
                       move = col;
-                      print('Swiped down');
+                      // print('Swiped down');
                       break;
                     case SwipeDirection.left:
                       move = -1;
-                      print('Swiped left');
+                      // print('Swiped left');
                       break;
                     case SwipeDirection.right:
                       move = 1;
-                      print('Swiped right');
+                      // print('Swiped right');
                       break;
                   }
                 },
