@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swipe_detector/flutter_swipe_detector.dart';
 
@@ -15,10 +16,13 @@ class _HomeState extends State<Home> {
   int head = 5;
   List body = [4, 3, 2, 1];
   int move = 1;
-  bool b=false;
   int col=10;
   int row=10;
   int food=Random().nextInt(100);
+  int pixel=50;
+  int score=0;
+  bool gameOn=true;
+
 
   @override
   void initState() {
@@ -27,14 +31,26 @@ class _HomeState extends State<Home> {
     fun();
   }
 
-  int speed=100;
+  int speed=1000;
   fun() async {
-    while(true)
+    while(gameOn)
       await Future.delayed(Duration(milliseconds: speed)).then((value) {
         setState(() {
           walk();
+          print("row = $row");
+          print("col = $col");
         });
       },);
+    if(!gameOn)
+      reset();
+  }
+  reset() {
+       head = 5;
+       body = [4, 3, 2, 1];
+       move = 1;
+       food=Random().nextInt(100);
+       score=0;
+       gameOn=true;
   }
 
   walk() {
@@ -50,7 +66,7 @@ class _HomeState extends State<Home> {
     //Continue walk snack
     List LeftToRight = [for (int i = 0; i <= row; i++) head == col * i - 1];
     List RightToLeft = [for (int i = 0; i <= row; i++) head == col * i];
-    List UpToDown = [for (int i = 0; i < col; i++) head == col * row - col + i + 1];
+    List UpToDown = [for (int i = 0; i < col; i++) head == col * row - col + i];
     List DownToUp = [for (int i = 0; i < col; i++) head == i];
 
     print('Head = $head');
@@ -64,15 +80,25 @@ class _HomeState extends State<Home> {
       head += col * row - col;
     else
       head += move;
+
+   isgame_over();
+  }
+  isgame_over()
+  {
+    if(body.contains(head))
+    {
+      gameOn=false;
+    }
   }
 
-  eat_food()
-  {
+  eat_food() {
     if(head==food)
     {
       body.insert(0, head);
       head_move();
       food=Random().nextInt(col*row);
+      score++;
+      speed=(1000/score).toInt();
     }
   }
 
@@ -81,61 +107,78 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+    double height = MediaQuery.of(context).size.height - (MediaQuery.of(context).padding.top+MediaQuery.of(context).padding.bottom+50);
     double width = MediaQuery.of(context).size.width;
-    col = (width / 10).floor();
-    row = (height / 10).floor();
+    col = (width / pixel).floor();
+    row = (height / pixel).floor();
 
-    return OrientationBuilder(
-      builder: (context, orientation) {
-        return Scaffold(
-          // backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-            SizedBox(
-            height: height,
-            width: width,
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: col,
-                  mainAxisSpacing: 1,
-                  crossAxisSpacing: 1),
-              itemCount: (height / 10).floor() * col,
-              itemBuilder: (context, index) {
-                return get(index);
-              },
-            ),
+    return Scaffold(
+      appBar: AppBar(title: Text('${gameOn ? score : "Game over"}'),actions: [
+        IconButton(onPressed: () {
+          setState(() {
+            pixel++;
+            reset();
+          });
+        }, icon: Icon(CupertinoIcons.left_chevron)),
+        ElevatedButton(onPressed: () {
+          setState(() {
+            reset();
+          });
+        }, child: Text('Reset')),
+        IconButton(onPressed: () {
+          setState(() {
+            pixel--;
+            reset();
+          });
+        }, icon: Icon(CupertinoIcons.right_chevron)),
+      ],),
+      // backgroundColor: Colors.black,
+      body: Center(
+        child: Stack(
+          children: [
+          SizedBox(
+          width: width,
+          height:row*pixel*pixel*col+row+0,
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: col,
+                mainAxisSpacing: 1,
+                crossAxisSpacing: 1),
+            itemCount: row * col,
+            itemBuilder: (context, index) {
+              return get(index);
+            },
           ),
-            SwipeDetector(
-                  onSwipe: (direction, offset) {
-                    switch (direction) {
-                      case SwipeDirection.up:
-                        move = 0 - col;
-                        print('Swiped up');
-                        break;
-                      case SwipeDirection.down:
-                        move = col;
-                        print('Swiped down');
-                        break;
-                      case SwipeDirection.left:
-                        move = -1;
-                        print('Swiped left');
-                        break;
-                      case SwipeDirection.right:
-                        move = 1;
-                        print('Swiped right');
-                        break;
-                    }
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    height: double.infinity,
-                    width: double.infinity,
-                  )),
-            ],
-          ),
-        );
-      },
+        ),
+          SwipeDetector(
+                onSwipe: (direction, offset) {
+                  switch (direction) {
+                    case SwipeDirection.up:
+                      move = 0 - col;
+                      print('Swiped up');
+                      break;
+                    case SwipeDirection.down:
+                      move = col;
+                      print('Swiped down');
+                      break;
+                    case SwipeDirection.left:
+                      move = -1;
+                      print('Swiped left');
+                      break;
+                    case SwipeDirection.right:
+                      move = 1;
+                      print('Swiped right');
+                      break;
+                  }
+                },
+                child: Container(
+                  color: Colors.transparent,
+                  height: double.infinity,
+                  width: double.infinity,
+                )),
+          ],
+        ),
+      ),
     );
   }
 
