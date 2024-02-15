@@ -22,6 +22,7 @@ class _HomeState extends State<Home> {
   int pixel=50;
   int score=0;
   bool gameOn=true;
+  int speed=1000;
 
 
   @override
@@ -31,7 +32,6 @@ class _HomeState extends State<Home> {
     fun();
   }
 
-  int speed=1000;
   fun() async {
     while(gameOn)
       await Future.delayed(Duration(milliseconds: speed)).then((value) {
@@ -50,6 +50,7 @@ class _HomeState extends State<Home> {
        move = 1;
        food=Random().nextInt(100);
        score=0;
+       speed=1000;
        gameOn=true;
   }
 
@@ -98,7 +99,7 @@ class _HomeState extends State<Home> {
       head_move();
       food=Random().nextInt(col*row);
       score++;
-      speed=(1000/score).toInt();
+      speed=(1000-(10*score)).toInt();
     }
   }
 
@@ -132,7 +133,7 @@ class _HomeState extends State<Home> {
           });
         }, icon: Icon(CupertinoIcons.right_chevron)),
       ],),
-      // backgroundColor: Colors.black,
+      backgroundColor: Colors.black,
       body: Center(
         child: Stack(
           children: [
