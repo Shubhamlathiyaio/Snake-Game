@@ -15,10 +15,13 @@ class _HomeState extends State<Home> {
   int head = 5;
   List body = [4, 3, 2, 1];
   int move = 1;
-  bool b=false;
   int col=10;
   int row=10;
   int food=Random().nextInt(100);
+  int pixel=50;
+  int score=0;
+  bool gameon=true;
+
 
   @override
   void initState() {
@@ -27,12 +30,14 @@ class _HomeState extends State<Home> {
     fun();
   }
 
-  int speed=100;
+  int speed=50;
   fun() async {
-    while(true)
+    while(gameon)
       await Future.delayed(Duration(milliseconds: speed)).then((value) {
         setState(() {
           walk();
+          print("row = $row");
+          print("col = $col");
         });
       },);
   }
@@ -64,15 +69,22 @@ class _HomeState extends State<Home> {
       head += col * row - col;
     else
       head += move;
+
+    if(body.contains(head))
+    {
+      gameon=false;
+      print("out");
+    }
   }
 
-  eat_food()
-  {
+  eat_food() {
     if(head==food)
     {
       body.insert(0, head);
       head_move();
       food=Random().nextInt(col*row);
+      score++;
+      speed=50*score;
     }
   }
 
@@ -81,61 +93,59 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+    double height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top-MediaQuery.of(context).padding.bottom;
     double width = MediaQuery.of(context).size.width;
-    col = (width / 10).floor();
-    row = (height / 10).floor();
+    col = (width / pixel).floor();
+    row = (height / pixel).floor();
 
-    return OrientationBuilder(
-      builder: (context, orientation) {
-        return Scaffold(
-          // backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-            SizedBox(
-            height: height,
-            width: width,
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: col,
-                  mainAxisSpacing: 1,
-                  crossAxisSpacing: 1),
-              itemCount: (height / 10).floor() * col,
-              itemBuilder: (context, index) {
-                return get(index);
-              },
-            ),
+    return Scaffold(
+      // backgroundColor: Colors.black,
+      body: Center(
+        child: Stack(
+          children: [
+          SizedBox(
+          height:height,
+          width: width,
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: col,
+                mainAxisSpacing: 1,
+                crossAxisSpacing: 1),
+            itemCount: row * col,
+            itemBuilder: (context, index) {
+              return get(index);
+            },
           ),
-            SwipeDetector(
-                  onSwipe: (direction, offset) {
-                    switch (direction) {
-                      case SwipeDirection.up:
-                        move = 0 - col;
-                        print('Swiped up');
-                        break;
-                      case SwipeDirection.down:
-                        move = col;
-                        print('Swiped down');
-                        break;
-                      case SwipeDirection.left:
-                        move = -1;
-                        print('Swiped left');
-                        break;
-                      case SwipeDirection.right:
-                        move = 1;
-                        print('Swiped right');
-                        break;
-                    }
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    height: double.infinity,
-                    width: double.infinity,
-                  )),
-            ],
-          ),
-        );
-      },
+        ),
+          SwipeDetector(
+                onSwipe: (direction, offset) {
+                  switch (direction) {
+                    case SwipeDirection.up:
+                      move = 0 - col;
+                      print('Swiped up');
+                      break;
+                    case SwipeDirection.down:
+                      move = col;
+                      print('Swiped down');
+                      break;
+                    case SwipeDirection.left:
+                      move = -1;
+                      print('Swiped left');
+                      break;
+                    case SwipeDirection.right:
+                      move = 1;
+                      print('Swiped right');
+                      break;
+                  }
+                },
+                child: Container(
+                  color: Colors.transparent,
+                  height: double.infinity,
+                  width: double.infinity,
+                )),
+          ],
+        ),
+      ),
     );
   }
 
