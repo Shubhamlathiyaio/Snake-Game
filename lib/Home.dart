@@ -14,12 +14,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int head = 5;
-  List body = [4, 3, 2, 1];
+  List body = [4];
   int move = 1;
   int col=10;
   int row=10;
   int food=Random().nextInt(100);
-  int pixel=30;
+  int pixel=20;
   int score=0;
   bool gameOn=true;
   int speed=600;
@@ -28,7 +28,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    fun();
+    reset();
   }
 
   fun() async {
@@ -42,9 +42,9 @@ class _HomeState extends State<Home> {
   }
   reset() {
        head = 5;
-       body = [4, 3, 2, 1];
+       body = [4];
        move = 1;
-       food=Random().nextInt(100);
+       food=Random().nextInt(100)<=5 ? 15:Random().nextInt(100);
        score=0;
        speed=600;
        gameOn=true;
@@ -62,6 +62,10 @@ class _HomeState extends State<Home> {
     eat_food();
   }
   head_move() {
+    if(head<0 || head>row*col) {
+      head = 5;
+      move=1;
+    }
     //Continue walk snack
     List LeftToRight = [for (int i = 0; i <= row; i++) head == col * i - 1];
     List RightToLeft = [for (int i = 0; i <= row; i++) head == col * i];
@@ -81,8 +85,7 @@ class _HomeState extends State<Home> {
 
    isgame_over();
   }
-  isgame_over()
-  {
+  isgame_over(){
     if(body.contains(head))
     {
       gameOn=false;
@@ -91,13 +94,17 @@ class _HomeState extends State<Home> {
   }
 
   eat_food() {
+    print("heat : $head");
+    print('food : $food');
     if(head==food)
     {
       body.insert(0, head);
       head_move();
+      do{
       food=Random().nextInt(col*row);
+      }while(body.contains(food) || food==head);
       score+=10;
-      speed=(600-(5*score)).toInt();
+      speed=(600-score).toInt();
     }
   }
 
@@ -106,17 +113,22 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height - (MediaQuery.of(context).padding.top+MediaQuery.of(context).padding.bottom+50);
+    double height = MediaQuery.of(context).size.height - (MediaQuery.of(context).padding.top+MediaQuery.of(context).padding.bottom+100);
     double width = MediaQuery.of(context).size.width;
     col = (width / pixel).floor();
     row = (height / pixel).floor();
 
     return Scaffold(
-      appBar: AppBar(title: Text('${gameOn ? score : "Game over"}'),actions: [
+      appBar: AppBar(title: Text('${gameOn ? "Score : $score" : "Game over"}'),actions: [
         IconButton(onPressed: () {
           setState(() {
-            pixel+=10;
-            reset();
+            pixel+=5;
+            head = 5;
+            body = [4];
+            do{
+              food=Random().nextInt((width / pixel).floor()*(height / pixel).floor());
+            }while(body.contains(food) || food==head);
+            setState(() {});
           });
         }, icon: Icon(CupertinoIcons.left_chevron)),
         ElevatedButton(onPressed: () {
@@ -126,8 +138,13 @@ class _HomeState extends State<Home> {
         }, child: Text('Reset')),
         IconButton(onPressed: () {
           setState(() {
-            pixel-=10;
-            reset();
+            pixel-=5;
+            head = 5;
+            body = [4];
+           do{
+             food=Random().nextInt((width / pixel).floor()*(height / pixel).floor());
+           }while(body.contains(food) || food==head);
+            setState(() {});
           });
         }, icon: Icon(CupertinoIcons.right_chevron)),
       ],),
@@ -140,9 +157,7 @@ class _HomeState extends State<Home> {
           height:row*pixel*pixel*col+row+0,
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: col,
-                mainAxisSpacing: 1,
-                crossAxisSpacing: 1),
+                crossAxisCount: col),
             itemCount: row * col,
             itemBuilder: (context, index) {
               return get(index);
@@ -182,17 +197,16 @@ class _HomeState extends State<Home> {
   }
 
   Widget get(int a) {
-    if (a == head)
-      return Container(
-        color: Colors.red,
-      );
-    else if (body.contains(a)) return Container(
-        color: Colors.green,
-      );
-    else if (food==a) return Container(color: Colors.yellow,);
-    else
-      return Container(
-        color: Colors.black,
-      );
+
+    String h="";
+    if(move==1) h='Asset/right.png';
+    if(move==-1) h='Asset/left.png';
+    if(move==col) h='Asset/down.png';
+    if(move==0-col) h='Asset/up.png';
+
+    if (a == head) return Container(color: Colors.black,child:Image(image: AssetImage(h)),);
+    else if (body.contains(a)) return Container(color: Colors.black,child: Container(margin: EdgeInsets.all(a==body[body.length-1]?5:2),decoration: BoxDecoration(color: Color(0xff8dc63f),borderRadius: BorderRadius.all(Radius.circular(a==body[body.length-1]?6:5))),child: a==body[body.length-1]?null: Container(margin: EdgeInsets.all(4),decoration: BoxDecoration(color: Colors.yellow,borderRadius: BorderRadius.circular(10)),),));
+    else if (food==a) return Container(color: Colors.black,child:Image(image: AssetImage('Asset/food.png')),);
+    else return Container(color: Colors.black,);
   }
 }
