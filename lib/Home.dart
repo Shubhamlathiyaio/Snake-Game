@@ -19,10 +19,10 @@ class _HomeState extends State<Home> {
   int col=10;
   int row=10;
   int food=Random().nextInt(100);
-  int pixel=50;
+  int pixel=30;
   int score=0;
   bool gameOn=true;
-  int speed=1000;
+  int speed=600;
 
 
   @override
@@ -38,8 +38,7 @@ class _HomeState extends State<Home> {
           walk();
         });
       },);
-    if(!gameOn)
-      reset();
+
   }
   reset() {
        head = 5;
@@ -47,8 +46,10 @@ class _HomeState extends State<Home> {
        move = 1;
        food=Random().nextInt(100);
        score=0;
-       speed=1000;
+       speed=600;
        gameOn=true;
+       fun();
+       setState(() {});
   }
 
   walk() {
@@ -85,6 +86,7 @@ class _HomeState extends State<Home> {
     if(body.contains(head))
     {
       gameOn=false;
+      setState(() {});
     }
   }
 
@@ -94,8 +96,8 @@ class _HomeState extends State<Home> {
       body.insert(0, head);
       head_move();
       food=Random().nextInt(col*row);
-      score++;
-      speed=(1000-(10*score)).toInt();
+      score+=10;
+      speed=(600-(5*score)).toInt();
     }
   }
 
@@ -113,7 +115,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(title: Text('${gameOn ? score : "Game over"}'),actions: [
         IconButton(onPressed: () {
           setState(() {
-            pixel++;
+            pixel+=10;
             reset();
           });
         }, icon: Icon(CupertinoIcons.left_chevron)),
@@ -124,7 +126,7 @@ class _HomeState extends State<Home> {
         }, child: Text('Reset')),
         IconButton(onPressed: () {
           setState(() {
-            pixel--;
+            pixel-=10;
             reset();
           });
         }, icon: Icon(CupertinoIcons.right_chevron)),
