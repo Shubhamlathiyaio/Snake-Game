@@ -1,6 +1,6 @@
-import 'dart:core';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swipe_detector/flutter_swipe_detector.dart';
@@ -19,7 +19,7 @@ class _HomeState extends State<Home> {
   int col = 10;
   int row = 10;
   int food = Random().nextInt(100);
-  int pixel = 20;
+  int pixel = 25;
   int score = 0;
   bool gameOn = false;
   int speed = 600;
@@ -90,21 +90,32 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
+  sound(String a)
+  async {
+    final player = AudioPlayer();
+    await player.play(AssetSource(a));
+  }
+
   isgame_over() {
-    if (body.contains(head))
+    if (body.contains(head)) {
+      if(gameOn)
+      sound('audio/game_over.wav');
       return false;
-    else return true;
+    } else return true;
   }
 
   eat_food() {
+
+
     if (head == food) {
+    sound('audio/eat.mp3');
       body.insert(0, head);
       head_move();
       do {
         food = Random().nextInt(col * row);
       } while (body.contains(food) || food == head);
       score += 10;
-      speed = (600 - score).toInt();
+      speed -=20;
     }
   }
 
@@ -252,10 +263,10 @@ class _HomeState extends State<Home> {
 
   Widget get(int a) {
     String h = "";
-    if (move == 1) h = 'Asset/right.png';
-    if (move == -1) h = 'Asset/left.png';
-    if (move == col) h = 'Asset/down.png';
-    if (move == 0 - col) h = 'Asset/up.png';
+    if (move == 1) h = 'assets/image/right.png';
+    if (move == -1) h = 'assets/image/left.png';
+    if (move == col) h = 'assets/image/down.png';
+    if (move == 0 - col) h = 'assets/image/up.png';
 
     if (a == head)
       return Container(
@@ -283,7 +294,7 @@ class _HomeState extends State<Home> {
     else if (food == a)
       return Container(
         color: Colors.black,
-        child: Image(image: AssetImage('Asset/food.png')),
+        child: Image(image: AssetImage('assets/image/food.png')),
       );
     else
       return Container(
