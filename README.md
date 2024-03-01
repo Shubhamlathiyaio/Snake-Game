@@ -1,6 +1,6 @@
 # snacke
 
-https://github.com/Shubhamlathiyaio/snake/issues/1#issue-2162721640
+https://github.com/Shubhamlathiyaio/snake/assets/136983872/a9f70147-c6df-41a4-a1bc-0bd988eabc9d
 
 A new Flutter project.
 
